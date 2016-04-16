@@ -38,6 +38,31 @@ class Font:
     def getLetterSets(self, n_train_examples, n_test_examples):
         # return a 4D numpy array that contains images of multiple letters
         
+<<<<<<< HEAD
+        training = np.zeros((self.size,self.size,len(training_letter)))  #return a new array of given shape and type
+        testing = np.zeros((self.size,self.size,len(testing_letter)))
+        
+        i = 0
+        for letter in training_letter:
+            img = Image.new('L',(self.size,self.size),(1))  #why(1)? 结果是全黑的
+            draw = ImageDraw.Draw(img)
+            draw.text((0, 0),letter,0,font=self.font)   #(0)?
+            draw = ImageDraw.Draw(img)
+            if(i==101):
+                img.save("trytest.png")
+            training[:,:,i] = np.array(img)
+            i = i+1
+        i = 0    
+        for letter in testing_letter:
+            img = Image.new('L',(self.size,self.size),(1))
+            draw = ImageDraw.Draw(img)
+            draw.text((0, 0),letter,0,font=self.font)
+            draw = ImageDraw.Draw(img)
+            testing[:,:,i] = np.array(img)
+            i = i+1
+                        
+        return (training, testing)
+=======
         train_input = np.zeros((n_train_examples, len(self.input_letter),self.size,self.size))
         train_output = np.zeros((n_train_examples, len(self.output_letter),self.size,self.size))
         test_input = np.zeros((n_test_examples, len(self.input_letter),self.size,self.size))
@@ -70,6 +95,7 @@ class Font:
             m = m + 1  
         train_input = train_input[0:m,:,:,:]    
         train_output = train_output[0:m,:,:,:]   
+>>>>>>> xiao281926365/master
         
         m = 0
         for font_file in self.font_files[n_train_examples:n_train_examples + n_test_examples]:
