@@ -12,7 +12,7 @@ import theano
 from theano import tensor as T
 
 
-from Fontv2 import *
+from Font import *
 from utility import *
 from NeuralNets import *
 basis_size = 36
