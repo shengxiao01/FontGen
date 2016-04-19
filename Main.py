@@ -20,22 +20,30 @@ import numpy as np
 import theano
 from theano import tensor as T
 
-
 from Font import *
 from utility import *
 from NeuralNets import *
+
+
 basis_size = 36
-font_dir = '/home/shengx/Documents/Font'
+font_dir = 'Fonts'
 input_letter = ['B','A','S','Q']
-output_letter = ['R']
+output_letter = ['X']
+
+n_train_batches = 210
+n_epochs = 1       #original:1500
+
+output_num = 4
+batch_size = 50
 
 Fonts = Font(basis_size, font_dir, input_letter, output_letter )
 #%%
-trainInput, trainOutput, testInput, testOutput = Fonts.getLetterSets(10510,51)
+trainInput, trainOutput, testInput, testOutput = Fonts.getLetterSets(n_train_batches * batch_size, output_num * batch_size)
 trainInput = 1 - trainInput
 trainOutput = 1 - trainOutput
 testInput = 1 - testInput
 testOutput = 1 - testOutput
+
 
 n_train = trainInput.shape[0]
 n_test = testInput.shape[0]
@@ -50,7 +58,8 @@ testOutput = testOutput.reshape((n_test,image_size*len(output_letter)))
 trainInput, trainOutput = shared_dataset(trainInput, trainOutput) 
 
 
-batch_size = 50
+
+
 
 #%% building neural networks
 
@@ -204,8 +213,7 @@ train_model = theano.function(
 
 #%% training the model
     
-n_train_batches = 210
-n_epochs = 1500
+
 epoch = 0
 
 while (epoch < n_epochs):
@@ -218,9 +226,9 @@ while (epoch < n_epochs):
 #test_losses = [test_model(i) for i in range(n_test_batches)]
 #test_score = np.mean(test_losses)
 
-
-
+theano.function
 #%% predict output
+
 
 
 predict_model = theano.function(
@@ -237,10 +245,11 @@ n = 3
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
 output_img = predicted_values
-output_img = output_img.reshape(50,36,36)
+output_img = output_img.reshape(batch_size,basis_size,basis_size)
 output_img = np.asarray(output_img, dtype = 'float64') /256
 plt.figure(1)
 plt.subplot(121)
 plt.imshow(output_img[n,:,:],interpolation="nearest",cmap='Greys')
 plt.subplot(122)
 plt.imshow(testOutput[n,:].reshape((basis_size,basis_size)),interpolation="nearest",cmap='Greys')
+plt.show()

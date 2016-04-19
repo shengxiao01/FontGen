@@ -25,7 +25,8 @@ class Font:
         font_files = []
         for parent,dirnames,filenames in os.walk(root_dir):  
             for filename in filenames:
-                font_files.append(os.path.join(parent,filename))
+                if filename[-3:] == 'ttf' or filename[-3:] == 'TTF':
+                    font_files.append(os.path.join(parent,filename))
         print(('Fond %i font files') % (len(font_files)))
         random.shuffle(font_files)
         self.font_files = font_files
@@ -55,7 +56,7 @@ class Font:
                     draw = ImageDraw.Draw(img)
                     train_input[m, n, :, :] = np.array(img)
                     n = n + 1
-                    
+
                 n = 0
                 for letter in self.output_letter:
                     font = ImageFont.truetype(font_file, self.size)
@@ -64,12 +65,13 @@ class Font:
                     draw.text((10, -5),letter,(0),font = font)
                     draw = ImageDraw.Draw(img)
                     train_output[m, n, :, :] = np.array(img)
-                    n = n + 1                                        
+                    n = n + 1
             except:
+                print("One ttf was broken")
                 continue
-            m = m + 1  
-        train_input = train_input[0:m,:,:,:]    
-        train_output = train_output[0:m,:,:,:]   
+            m = m + 1
+        train_input = train_input[0:m,:,:,:]
+        train_output = train_output[0:m,:,:,:]
         
         m = 0
         for font_file in self.font_files[n_train_examples:n_train_examples + n_test_examples]:
@@ -91,11 +93,11 @@ class Font:
                     draw.text((10, -5),letter,(0),font = font)
                     draw = ImageDraw.Draw(img)
                     test_output[m, n, :, :] = np.array(img)
-                    n = n + 1                    
+                    n = n + 1
             except:
                 continue
             m = m + 1
-        i = 0  
+        i = 0
         test_input = test_input[0:m,:,:,:]
         test_output = test_output[0:m,:,:,:]
         
