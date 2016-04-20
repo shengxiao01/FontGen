@@ -32,11 +32,12 @@ font_dir = 'Fonts'
 input_letter = ['B','A','S','Q']
 output_letter = ['R']
 
-n_train_batches = 20
-n_epochs = 50000       #original:1500
+n_train_batches = 100
+n_epochs = 10000       #original:1500
 batch_size = 1
+total_layer = 6
 
-output_num = 1      # haven't figure out what to do with this
+output_num = 5      # haven't figure out what to do with this
 
 #%% compare output
 n = 0
@@ -194,18 +195,26 @@ layer3 = HiddenLayer(
 
 
 
+
 layer4 = BinaryLogisticRegression(
         np.random.RandomState(np.random.randint(10000)),
         input=layer3.output,
         n_in=50,
         n_out=basis_size * basis_size,
     )
+
+
+
+
+
 cost = layer4.negative_log_likelihood(y)
 error = ((y - layer4.y_pred)**2).sum()
 
 params = (layer4.params
         + layer3.params
         + layer2.params
+        + layer5.params
+        + layer6.params
         + layer10.params + layer11.params + layer12.params + layer13.params
         + layer00.params + layer01.params + layer02.params + layer03.params)
 grads = T.grad(cost, params)
@@ -261,39 +270,40 @@ predict_model = theano.function(
         on_unused_input='ignore'
     )
 
-predicted_values = predict_model(testInput[0:batch_size])
-
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
 
-output_img = predicted_values
-output_img = output_img.reshape(batch_size,basis_size,basis_size)
-output_img = np.asarray(output_img, dtype = 'float64') /256
-plt.figure(1)
+for testindex in range(output_num):
+    predicted_values = predict_model(testInput[testindex * batch_size:(testindex + 1) * batch_size])
 
-le = len(input_letter)
-siz = 10*le + 200
+    output_img = predicted_values
+    output_img = output_img.reshape(batch_size,basis_size,basis_size)
+    output_img = np.asarray(output_img, dtype = 'float64') /256
+    plt.figure(1)
 
-for x in range(len(input_letter)):
+    le = len(input_letter)
+    siz = 10*le + 200
 
-    plt.subplot(siz + x + 1)
-    plt.imshow(testInput[n,x * image_size:  (x+1)*image_size].reshape((basis_size,basis_size)),interpolation="nearest",cmap='Greys')
-plt.subplot(siz + le + 2)
-"""
-plt.imshow(output_img[n,:,:],interpolation="nearest",cmap='Greys')
-"""
-"""
-plt.imshow(testInput[n,:,:],interpolation="nearest",cmap='Greys')
-"""
-plt.imshow(output_img[n,:,:],interpolation="nearest",cmap='Greys')
-plt.subplot(siz + le + 1)
-plt.imshow(testOutput[n,:].reshape((basis_size,basis_size)),interpolation="nearest",cmap='Greys')
-x = 0
-st = 'test/6lasfi' + str(n_train_batches) + '-' + str(n_epochs) +'-'+ str(batch_size)
-while os.path.exists(st + '-' + str(x)+'.png'):
-    x += 1
-plt.savefig(st + '-' + str(x)+'.png')
-plt.show()
+    for x in range(len(input_letter)):
+
+        plt.subplot(siz + x + 1)
+        plt.imshow(testInput[testindex,x * image_size:  (x+1)*image_size].reshape((basis_size,basis_size)),interpolation="nearest",cmap='Greys')
+    plt.subplot(siz + le + 2)
+    """
+    plt.imshow(output_img[n,:,:],interpolation="nearest",cmap='Greys')
+    """
+    """
+    plt.imshow(testInput[n,:,:],interpolation="nearest",cmap='Greys')
+    """
+    plt.imshow(output_img[0,:,:],interpolation="nearest",cmap='Greys')
+    plt.subplot(siz + le + 1)
+    plt.imshow(testOutput[testindex,:].reshape((basis_size,basis_size)),interpolation="nearest",cmap='Greys')
+    x = 0
+    st = 'test/6lasfi' + str(n_train_batches) + '-' + str(n_epochs) +'-'+ str(batch_size)
+    while os.path.exists(st + '-' + str(x)+'.png'):
+        x += 1
+    plt.savefig(st + '-' + str(x)+'.png')
+    plt.show()
 
 
 # as: autosave, f: font.py changes, i: imagedisplay change  -num in the end: the name for same parameter images.
