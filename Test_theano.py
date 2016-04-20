@@ -12,11 +12,11 @@ import theano
 from theano import tensor as T
 
 
-from Fontv2 import *
+from Font import *
 from utility import *
 from NeuralNets import *
 basis_size = 36
-font_dir = '/home/shengx/Documents/Font'
+font_dir = 'Fonts'
 input_letter = ['B','A','S','Q']
 output_letter = ['R']
 
