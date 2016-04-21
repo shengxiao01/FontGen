@@ -30,15 +30,17 @@ from NeuralNets import *
 basis_size = 36
 font_dir = 'Fonts'
 input_letter = ['B','A','S','Q']
-output_letter = ['R']
+output_letter = ['Z']
 
-n_train_batches = 100
-n_epochs = 10000       #original:1500
+n_train_batches = 10
+n_epochs = 50000       #original:1500
 batch_size = 1
-total_layer = 6
 
-output_num = 5      # haven't figure out what to do with this
+learning_rate = 1   # learning rate, when using 0.02, less than 200000 epoches will not work.
 
+output_num = 6      # test font output number
+
+total_layer = 6     # writing def in loop is complicated, this parameter is not used
 #%% compare output
 n = 0
 
@@ -75,7 +77,7 @@ rng2 = np.random.RandomState(2345)
 rng3 = np.random.RandomState(1567)
 rng4 = np.random.RandomState(1124)
 nkerns = [2, 2]
-learning_rate = 1
+
 
 
 # allocate symbolic variables for the data
@@ -184,6 +186,7 @@ layer6 = HiddenLayer(
     n_out=50,
     activation=T.nnet.sigmoid
 )
+
 
 layer3 = HiddenLayer(
         np.random.RandomState(np.random.randint(10000)),
@@ -299,16 +302,18 @@ for testindex in range(output_num):
     plt.subplot(siz + le + 1)
     plt.imshow(testOutput[testindex,:].reshape((basis_size,basis_size)),interpolation="nearest",cmap='Greys')
     x = 0
-    st = 'test/6lasfi' + str(n_train_batches) + '-' + str(n_epochs) +'-'+ str(batch_size)
+    st = 'test/c6lasfi-'+ str(learning_rate) + '-' + str(n_train_batches) + '-' + str(n_epochs) +'-'+ str(batch_size)
     while os.path.exists(st + '-' + str(x)+'.png'):
         x += 1
     plt.savefig(st + '-' + str(x)+'.png')
     plt.show()
 
 
-# as: autosave, f: font.py changes, i: imagedisplay change  -num in the end: the name for same parameter images.
+# as: autosave, f: font.py changes, i: image display change (L -> 1)  -num in the end: the name for same parameter images.
 # 6l: 6 layers in total
-# name style: surffi -a -b -c -num
+# c: Chinese test training
+# name style: surffi -d -a -b -c -num
+# -d learning rate
 # -a n_train_batches
 # -b n_epochs      #original:1500
 # -c batch_size
