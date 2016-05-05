@@ -32,10 +32,10 @@ font_dir = 'Fonts'
 input_letter = ['兰','亭','集','序']
 output_letter = ['羲']
 
-lamb = 1        # neural network parameter cost, regularization
+lamb = 0.0001        # neural network parameter cost, regularization
 
 n_train_batches = 10
-n_epochs = 200000       #original:1500
+n_epochs = 40000       #original:1500
 batch_size = 1
 
 learning_rate = 1   # learning rate, when using 0.02, less than 200000 epoches will not work.
@@ -212,10 +212,10 @@ params = (layer4.params
           + layer10.params + layer11.params + layer12.params + layer13.params
           + layer00.params + layer01.params + layer02.params + layer03.params)
 
-cost = layer4.negative_log_likelihood(y) #+ lamb * theano.tensor.sum(np.sum(params)) # lamb and following term can be removed
+cost = layer4.negative_log_likelihood(y)+ lamb * sum([(x*x).sum() for x in params])              #+ lamb * theano.tensor.sum(np.sum(params)) # lamb and following term can be removed
 
 error = ((y - layer4.y_pred)**2).sum()
-
+# THEANO_FLAGS = 'optimizer = fast_compile'
 
 grads = T.grad(cost, params)
 
@@ -247,6 +247,8 @@ train_model = theano.function(
 #%% training the model
 
 epoch = 0
+costlist = []
+
 
 while (epoch < n_epochs):
     epoch = epoch + 1
@@ -259,6 +261,7 @@ while (epoch < n_epochs):
     if (epoch % 100 == 0):
         print(('   epoch %i') % (epoch))
         print(total)
+        costlist += [total]
 #test_losses = [test_model(i) for i in range(n_test_batches)]
 #test_score = np.mean(test_losses)
 
@@ -301,28 +304,30 @@ for testindex in range(output_num):
     plt.subplot(siz + le + 1)
     plt.imshow(testOutput[testindex,:].reshape((basis_size,basis_size)),interpolation="nearest",cmap='Greys')
     x = 0
-    st = 'test/c6lasfi-'+ str(learning_rate) + '-' + str(n_train_batches) + '-' + str(n_epochs) +'-'+ str(batch_size)
+    st = 'test/c6lasfil-'+ str(learning_rate) + '-' + str(lamb) + '-' + str(n_train_batches) + '-' + str(n_epochs) +'-'+ str(batch_size)
     while os.path.exists(st + '-' + str(x) + '.png'):
         x += 1
     plt.savefig(st + '-' + str(x)+'.png')
     plt.show()
 
-# as: autosave, f: font.py changes, i: image display change (L -> 1)  -num in the end: the name for same parameter images.
 # 6l: 6 layers in total
 # c: Chinese test training
+# as: autosave, f: font.py changes, i: image display change (L -> 1)  -num in the end: the name for same parameter images.
+# l: lambda
 # name style: surffi -d -a -b -c -num
 # -d learning rate
 # -a n_train_batches
 # -b n_epochs      #original: 1500
 # -c batch_size    #original: 50
-
+fig, ax = plt.subplots( nrows=1, ncols=1 )
+ax.plot(costlist)
+fig.savefig(st + 'cost_graph.png')
+plt.close(fig)
 
 """st2 = 'c6lasfi-'+ str(learning_rate) + '-' + str(n_train_batches) + '-' + str(n_epochs) +'-'+ str(batch_size)
 text_index = 0
 textfile = open('testparams/'+st2 + '-' + str(x) + '.txt', 'w')
 text = str(params)
-
-
 textfile.write(st)
 textfile.close()"""
 textfile = open('paramrecord', 'a')
