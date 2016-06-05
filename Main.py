@@ -205,7 +205,7 @@ train_model = theano.function(
 #%% training the model
     
 n_train_batches = 210
-n_epochs = 15
+n_epochs = 1500
 epoch = 0
 
 
@@ -229,13 +229,14 @@ print("Training %d epochs took %f seconds" % (n_epochs, t1 - t0))
 predict_model = theano.function(
         inputs = [x],
         outputs = layer4.p_y_given_x,
-        on_unused_input='ignore'
+        on_unused_input='ignore',
+        allow_input_downcast='True'
     )
 
 predicted_values = predict_model(testInput[0:50])
 
 #%% compare output
-n = 3
+n = 47
 
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
