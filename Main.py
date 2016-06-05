@@ -19,7 +19,7 @@ Created on Thu Apr  7 15:54:40 2016
 import numpy as np
 import theano
 from theano import tensor as T
-
+import time
 
 from Font import *
 from utility import *
@@ -205,9 +205,11 @@ train_model = theano.function(
 #%% training the model
     
 n_train_batches = 210
-n_epochs = 1500
+n_epochs = 15
 epoch = 0
 
+
+t0 = time.time()
 while (epoch < n_epochs):
     epoch = epoch + 1
     for minibatch_index in range(n_train_batches):
@@ -218,7 +220,8 @@ while (epoch < n_epochs):
 #test_losses = [test_model(i) for i in range(n_test_batches)]
 #test_score = np.mean(test_losses)
 
-
+t1 = time.time()
+print("Training %d epochs took %f seconds" % (n_epochs, t1 - t0))
 
 #%% predict output
 
