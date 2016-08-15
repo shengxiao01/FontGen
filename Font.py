@@ -9,6 +9,7 @@ This is a temporary script file.
 from PIL import ImageFont
 from PIL import Image
 from PIL import ImageDraw
+
 import os
 import os.path
 import random
@@ -98,5 +99,17 @@ class Font:
         i = 0  
         test_input = test_input[0:m,:,:,:]
         test_output = test_output[0:m,:,:,:]
-        
+
         return (train_input, train_output, test_input, test_output)
+        
+        
+    def draw_font(self, font_file, letter):
+        # draw a centered font image according to the assigned font file and letter
+        font = ImageFont.truetype(font_file, self.size)
+        w, h = font.getsize(letter)
+        img = Image.new('L', (w,h),(1))
+        draw = ImageDraw.Draw(img)
+        draw.text((0, 0),letter,(0),font = font)
+        draw = ImageDraw.Draw(img)
+        
+        return img

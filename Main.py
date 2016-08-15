@@ -24,12 +24,14 @@ import time
 from Font import *
 from utility import *
 from NeuralNets import *
-basis_size = 36
+basis_size = 50
 font_dir = '/home/shengx/Documents/Eng_Font'
 input_letter = ['B','A','S','Q']
 output_letter = ['R']
 
 Fonts = Font(basis_size, font_dir, input_letter, output_letter )
+    
+    
 #%%
 trainInput, trainOutput, testInput, testOutput = Fonts.getLetterSets(10510,51)
 trainInput = 1 - trainInput
@@ -76,8 +78,8 @@ layer02_input = x[:,2 * image_size:3 * image_size].reshape((batch_size, 1, basis
 layer03_input = x[:,3 * image_size:4 * image_size].reshape((batch_size, 1, basis_size, basis_size))
 # first convolutional layer
 # image original size 50X50, filter size 5X5, filter number nkerns[0]
-# after filtering, image size reduced to (36 - 3 + 1) = 34
-# after max pooling, image size reduced to 34 / 2 = 17
+# after filtering, image size reduced to (50 - 3 + 1) = 48
+# after max pooling, image size reduced to 48 / 2 = 24
 layer00 = LeNetConvPoolLayer(
         np.random.RandomState(np.random.randint(10000)),
         input=layer00_input,
@@ -110,34 +112,34 @@ layer03 = LeNetConvPoolLayer(
         
 # second convolutional layer
 # input image size 23X23, filter size 4X4, filter number nkerns[1]
-# after filtering, image size (17 - 4 + 1) = 14
-# after max pooling, image size reduced to 14 / 2 = 7    
+# after filtering, image size (24 - 3 + 1) = 22
+# after max pooling, image size reduced to 22 / 2 = 11    
 layer10 = LeNetConvPoolLayer(
         np.random.RandomState(np.random.randint(10000)),
         input=layer00.output,
-        image_shape=(batch_size, nkerns[0], 17, 17),
-        filter_shape=(nkerns[1], nkerns[0], 4, 4),
+        image_shape=(batch_size, nkerns[0], 24, 24),
+        filter_shape=(nkerns[1], nkerns[0], 3, 3),
         poolsize=(2, 2)
     )
 layer11 = LeNetConvPoolLayer(
         np.random.RandomState(np.random.randint(10000)),
         input=layer01.output,
-        image_shape=(batch_size, nkerns[0], 17, 17),
-        filter_shape=(nkerns[1], nkerns[0], 4, 4),
+        image_shape=(batch_size, nkerns[0], 24, 24),
+        filter_shape=(nkerns[1], nkerns[0], 3, 3),
         poolsize=(2, 2)
     )
 layer12 = LeNetConvPoolLayer(
         np.random.RandomState(np.random.randint(10000)),
         input=layer02.output,
-        image_shape=(batch_size, nkerns[0], 17, 17),
-        filter_shape=(nkerns[1], nkerns[0], 4, 4),
+        image_shape=(batch_size, nkerns[0], 24, 24),
+        filter_shape=(nkerns[1], nkerns[0], 3, 3),
         poolsize=(2, 2)
     )
 layer13 = LeNetConvPoolLayer(
         np.random.RandomState(np.random.randint(10000)),
         input=layer03.output,
-        image_shape=(batch_size, nkerns[0], 17, 17),
-        filter_shape=(nkerns[1], nkerns[0], 4, 4),
+        image_shape=(batch_size, nkerns[0], 24, 24),
+        filter_shape=(nkerns[1], nkerns[0], 3, 3),
         poolsize=(2, 2)
     )    
     
@@ -149,7 +151,7 @@ layer2_input = T.concatenate([layer10.output.flatten(2), layer11.output.flatten(
 layer2 = HiddenLayer(
         np.random.RandomState(np.random.randint(10000)),
         input=layer2_input,
-        n_in=nkerns[1] * len(input_letter) * 7 * 7,
+        n_in=nkerns[1] * len(input_letter) * 11 * 11,
         n_out=50,
         activation=T.nnet.sigmoid
     )
@@ -236,12 +238,12 @@ predict_model = theano.function(
 predicted_values = predict_model(testInput[0:50])
 
 #%% compare output
-n = 47
+n = 27
 
 import matplotlib.pyplot as plt
-import matplotlib.image as mpimg
+
 output_img = predicted_values
-output_img = output_img.reshape(50,36,36)
+output_img = output_img.reshape(batch_size,basis_size,basis_size)
 output_img = np.asarray(output_img, dtype = 'float64') /256
 plt.figure(1)
 plt.subplot(121)

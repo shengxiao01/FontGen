@@ -96,12 +96,8 @@ class Font:
                     
                 n = 0
                 for letter in self.output_letter:
-                    font = ImageFont.truetype(font_file, self.size)
-                    img = Image.new('L',(self.size,self.size),(1))
-                    draw = ImageDraw.Draw(img)
-                    draw.text((10, -5),letter,(0),font = font)
-                    draw = ImageDraw.Draw(img)
-                    train_output[m, n, :, :] = np.array(img)
+                    font_image = self.drawFont(font_file, letter)
+                    train_output[m, n, :, :] = font_image
                     n = n + 1                                        
             except:
                 continue
@@ -114,21 +110,13 @@ class Font:
             try:
                 n = 0
                 for letter in self.input_letter:
-                    font = ImageFont.truetype(font_file, self.size)
-                    img = Image.new('L',(self.size,self.size),(1))
-                    draw = ImageDraw.Draw(img)
-                    draw.text((10, -5),letter,(0),font = font)
-                    draw = ImageDraw.Draw(img)
-                    test_input[m, n, :, :] = np.array(img)
+                    font_image = self.drawFont(font_file, letter)
+                    test_input[m, n, :, :] = font_image
                     n = n + 1
                 n = 0
                 for letter in self.output_letter:
-                    font = ImageFont.truetype(font_file, self.size)
-                    img = Image.new('L',(self.size,self.size),(1))
-                    draw = ImageDraw.Draw(img)
-                    draw.text((10, -5),letter,(0),font = font)
-                    draw = ImageDraw.Draw(img)
-                    test_output[m, n, :, :] = np.array(img)
+                    font_image = self.drawFont(font_file, letter)
+                    test_output[m, n, :, :] = font_image
                     n = n + 1                    
             except:
                 continue
@@ -157,14 +145,14 @@ class Font:
             else:
                 current_canvas_size = current_canvas_size * 1.2
             
-        ratio = min(size/(right-left),size/(lower - upper))
+        ratio = min(self.size/(right-left),self.size/(lower - upper))
         w = int(ratio * (right - left)/2)*2
         h = int(ratio * (lower - upper)/2)*2
         img = img.crop((left,upper,right,lower))
         img = img.resize((w,h),Image.ANTIALIAS)
-        new_im = Image.new('L', (size,size),(0))   
-        new_im.paste(img, (int((size-w)/2), int((size-h)/2)))
+        new_im = Image.new('L', (self.size,self.size),(0))   
+        new_im.paste(img, (int((self.size-w)/2), int((self.size-h)/2)))
           
         font_image = np.array(new_im)
         
-        return font_img
+        return font_image
