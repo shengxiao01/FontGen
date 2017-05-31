@@ -17,27 +17,16 @@ Created on Thu Apr  7 15:54:40 2016
 #%% Load Data
 
 import numpy as np
-import theano
-from theano import tensor as T
 import time
 
 from Font import *
-from utility import *
-from NeuralNets import *
-basis_size = 50
-font_dir = '/home/shengx/Documents/Eng_Font'
-input_letter = ['B','A','S','Q']
-output_letter = ['R']
+import Parameters as params
 
-Fonts = Font(basis_size, font_dir, input_letter, output_letter )
+Fonts = Font(params.basis_size, params.font_dir, params.input_letter, params.output_letter)
     
     
 #%%
 trainInput, trainOutput, testInput, testOutput = Fonts.getLetterSets(10510,51)
-trainInput = 1 - trainInput
-trainOutput = 1 - trainOutput
-testInput = 1 - testInput
-testOutput = 1 - testOutput
 
 n_train = trainInput.shape[0]
 n_test = testInput.shape[0]
@@ -45,14 +34,7 @@ input_size = len(input_letter) * basis_size * basis_size
 output_size = len(output_letter) * basis_size * basis_size
 image_size = basis_size * basis_size
 
-trainInput = trainInput.reshape((n_train,image_size*len(input_letter)))
-trainOutput = trainOutput.reshape((n_train,image_size*len(output_letter)))
-testInput = testInput.reshape((n_test,image_size*len(input_letter)))
-testOutput = testOutput.reshape((n_test,image_size*len(output_letter)))
-trainInput, trainOutput = shared_dataset(trainInput, trainOutput) 
-
-
-batch_size = 50
+batch_size = 128
 
 #%% building neural networks
 
