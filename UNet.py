@@ -15,6 +15,7 @@ class UNet():
         self.__IMG_X = params.IMG_X
         self.__IMG_Y = params.IMG_Y
         self.__IMG_Z = params.IMG_Z
+        self.__IMG_OUT_Z = params.IMG_OUT_Z
         self.__L2_REG = params.WEIGHT_L2_REG
         
         self.global_step = tf.Variable(0, trainable=False)
@@ -30,7 +31,7 @@ class UNet():
        
     def build(self):
         image_in = tf.placeholder(tf.float32, shape=[None, self.__IMG_X, self.__IMG_Y, self.__IMG_Z]) # input image size 256 X 256 X 4
-        label_in = tf.placeholder(tf.float32, shape=[None, self.__IMG_X, self.__IMG_Y, 1])
+        label_in = tf.placeholder(tf.float32, shape=[None, self.__IMG_X, self.__IMG_Y, self.__IMG_OUT_Z])
         
         logits = self.u_net(image_in)
         image_out = tf.nn.sigmoid(logits)
@@ -62,7 +63,7 @@ class UNet():
                 up_out = self.up_block(layer_out[3-layers], layer_out[-1], filters_up[layers])
                 layer_out.append(up_out)
                 
-        filter = self.variables(name='final_conv', shape=[ 1, 1, filters_up[-1], 1])
+        filter = self.variables(name='final_conv', shape=[ 1, 1, filters_up[-1], self.__IMG_OUT_Z])
         image_out = tf.nn.conv2d(layer_out[-1], filter, strides=[1, 1, 1, 1], padding='SAME')    
         return image_out
 
