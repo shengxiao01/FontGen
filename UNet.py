@@ -16,8 +16,14 @@ class UNet():
         self.__IMG_Y = params.IMG_Y
         self.__IMG_Z = params.IMG_Z
         self.__L2_REG = params.WEIGHT_L2_REG
+        
         self.global_step = tf.Variable(0, trainable=False)
-        self.learning_rate = params.LEARNING_RATE
+        self.__starter_learning_rate = params.LEARNING_RATE
+        self.learning_rate = tf.train.exponential_decay(learning_rate = self.__starter_learning_rate, 
+                                                          global_step = self.global_step, 
+                                                          decay_steps = params.LEARNING_RATE_DECAY_STEP, 
+                                                          decay_rate = params.LEARNING_RATE_DECAY, 
+                                                          staircase=True) 
 
         self.model = self.build()
         self.merged_summaries = tf.summary.merge_all()
@@ -50,14 +56,15 @@ class UNet():
                     tensor_out = self.down_block(layer_out[-1], filters_down[layers])
                 layer_out.append(tensor_out)
                     
-        filters_up = [512, 256, 128, 64, 1]
+        filters_up = [512, 256, 128, 64]
         for layers in range(4):
             with tf.variable_scope('up_%d' %layers):
                 up_out = self.up_block(layer_out[3-layers], layer_out[-1], filters_up[layers])
                 layer_out.append(up_out)
-        
-            
-        return layer_out[-1]
+                
+        filter = self.variables(name='final_conv', shape=[ 1, 1, filters_up[-1], 1])
+        image_out = tf.nn.conv2d(layer_out[-1], filter, strides=[1, 1, 1, 1], padding='SAME')    
+        return image_out
 
     def down_block(self, tensor_in, channel_out, down_pool = True):
         channel_in = tensor_in.get_shape().as_list()[-1]

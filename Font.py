@@ -39,10 +39,10 @@ class Font:
     def getLetterSets(self, n_train_examples, n_test_examples):
         # return a 4D numpy array that contains images of multiple letters
         
-        train_input = np.zeros((n_train_examples, len(self.input_letter),self.size,self.size))
-        train_output = np.zeros((n_train_examples, len(self.output_letter),self.size,self.size))
-        test_input = np.zeros((n_test_examples, len(self.input_letter),self.size,self.size))
-        test_output = np.zeros((n_test_examples, len(self.output_letter),self.size,self.size))
+        train_input = np.zeros((n_train_examples, self.size, self.size, len(self.input_letter)))
+        train_output = np.zeros((n_train_examples, self.size, self.size, len(self.output_letter)))
+        test_input = np.zeros((n_test_examples, self.size, self.size, len(self.input_letter)))
+        test_output = np.zeros((n_test_examples, self.size, self.size, len(self.output_letter)))
         
         m = 0
         for font_file in self.font_files[0:n_train_examples]:
@@ -54,7 +54,7 @@ class Font:
                     draw = ImageDraw.Draw(img)
                     draw.text((10, -5),letter,(0),font = font)
                     draw = ImageDraw.Draw(img)
-                    train_input[m, n, :, :] = np.array(img)
+                    train_input[m, :, :, n] = np.array(img)
                     n = n + 1
                     
                 n = 0
@@ -64,7 +64,7 @@ class Font:
                     draw = ImageDraw.Draw(img)
                     draw.text((10, -5),letter,(0),font = font)
                     draw = ImageDraw.Draw(img)
-                    train_output[m, n, :, :] = np.array(img)
+                    train_output[m, :, :, n] = np.array(img)
                     n = n + 1                                        
             except:
                 continue
@@ -82,7 +82,7 @@ class Font:
                     draw = ImageDraw.Draw(img)
                     draw.text((10, -5),letter,(0),font = font)
                     draw = ImageDraw.Draw(img)
-                    test_input[m, n, :, :] = np.array(img)
+                    test_input[m, :, :, n] = np.array(img)
                     n = n + 1
                 n = 0
                 for letter in self.output_letter:
@@ -91,7 +91,7 @@ class Font:
                     draw = ImageDraw.Draw(img)
                     draw.text((10, -5),letter,(0),font = font)
                     draw = ImageDraw.Draw(img)
-                    test_output[m, n, :, :] = np.array(img)
+                    test_output[m, :, :, n] = np.array(img)
                     n = n + 1                    
             except:
                 continue
