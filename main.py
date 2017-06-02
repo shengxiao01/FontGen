@@ -6,14 +6,13 @@ Created on Wed May 31 16:26:30 2017
 """
 #%%
 import UNet
-from Font import *
+import Font 
 import tensorflow as tf
 import numpy as np
 import time
 import Parameters as params
-from matplotlib import pyplot as plt
 
-Fonts = Font()
+Fonts = Font.Font()
 trainInput, trainOutput, testInput, testOutput = Fonts.getLetterSets()
 
 #%%
@@ -31,7 +30,7 @@ logger.restore(sess)
 
 
 #%%
-epoch = 0
+epoch = sess.run(model.global_step)
 begin_time = time.time()
 while True:
     epoch = epoch + 1
@@ -49,29 +48,7 @@ while True:
         begin_time = time.time()
     if epoch % 60 == 0:
         predicted_img = model.predict(sess, testInput[test_idx])
-        plt.figure(1)
-        plt.axis('off')
-        plt.subplot(281)
-        plt.imshow(predicted_img[1, :, :, 0],interpolation="nearest",cmap='Greys')
-        plt.subplot(282)
-        plt.imshow(predicted_img[1, :, :, 1],interpolation="nearest",cmap='Greys')
-        plt.subplot(283)
-        plt.imshow(predicted_img[1, :, :, 2],interpolation="nearest",cmap='Greys')
-        plt.subplot(284)
-        plt.imshow(predicted_img[1, :, :, 3],interpolation="nearest",cmap='Greys')    
-        plt.subplot(285)
-        plt.imshow(predicted_img[1, :, :, 4],interpolation="nearest",cmap='Greys')
-        plt.subplot(286)
-        plt.imshow(predicted_img[1, :, :, 5],interpolation="nearest",cmap='Greys')
-        plt.subplot(287)
-        plt.imshow(predicted_img[1, :, :, 6],interpolation="nearest",cmap='Greys')
-        plt.subplot(288)
-        plt.imshow(predicted_img[1, :, :, 7],interpolation="nearest",cmap='Greys')           
-        plt.subplot(289)
-        plt.imshow(testOutput[test_idx[1], :, :, 0],interpolation="nearest",cmap='Greys')
-        plt.show()
-        plt.pause(0.0001) 
+        test_display(predicted_img, testOutput[test_idx], 0)
     if epoch % params.SAVE_FREQ == 0:
         logger.save(sess, sess.run(model.global_step))
 #%%
-predicted_img = model.predict(sess, testInput)

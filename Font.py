@@ -16,6 +16,8 @@ import numpy as np
 
 import Parameters as params
 
+from matplotlib import pyplot as plt
+
 class Font:
     
     def __init__(self):
@@ -94,3 +96,15 @@ class Font:
         font_image = np.array(new_im)
         
         return font_image
+        
+def test_display(predicted, truth, expIdx):
+    width = predicted.shape[3]
+    plt.figure(1)
+    plt.axis('off')
+    for i in range(width):
+        plt.subplot(2,width,i+1)
+        plt.imshow(predicted[expIdx, :, :, i-1],interpolation="nearest",cmap='Greys')
+        plt.subplot(2,width,i+width+1)
+        plt.imshow(truth[expIdx, :, :, i-1],interpolation="nearest",cmap='Greys')
+    plt.show()
+    plt.pause(0.0001) 

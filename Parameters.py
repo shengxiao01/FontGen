@@ -9,10 +9,10 @@ SAVE_PATH = './save/'
 
 font_dir = '../10000_Fonts'
 input_letter = ['A','B','S','Q', 'X']
-output_letter = ['C', 'D', 'E', 'G', 'J', 'R', 'W', 'Z']
+output_letter = ['E', 'G', 'R', 'W', 'Z']
 
 
-BATCH_SIZE = 16
+BATCH_SIZE = 24
 basis_size = 96
 
 IMG_X = basis_size
