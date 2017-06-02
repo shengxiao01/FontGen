@@ -8,11 +8,11 @@ Created on Wed May 31 16:28:30 2017
 SAVE_PATH = './save/'
 
 font_dir = '../10000_Fonts'
-input_letter = ['B','A','S','Q']
-output_letter = ['R']
+input_letter = ['A','B','S','Q', 'X']
+output_letter = ['C', 'D', 'E', 'G', 'J', 'R', 'W', 'Z']
 
 
-BATCH_SIZE = 48
+BATCH_SIZE = 16
 basis_size = 96
 
 IMG_X = basis_size
@@ -28,3 +28,5 @@ WEIGHT_L2_REG = 0.0002
 VALIDATE_FREQ = 20
 SAVE_FREQ = 1000
 TRAIN_TEST_SPLIT = 20
+
+DROPOUT_RATE = 0.1

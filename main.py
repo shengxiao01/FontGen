@@ -13,7 +13,7 @@ import time
 import Parameters as params
 from matplotlib import pyplot as plt
 
-Fonts = Font(params.basis_size, params.font_dir, params.input_letter, params.output_letter)
+Fonts = Font()
 trainInput, trainOutput, testInput, testOutput = Fonts.getLetterSets()
 
 #%%
@@ -51,9 +51,23 @@ while True:
         predicted_img = model.predict(sess, testInput[test_idx])
         plt.figure(1)
         plt.axis('off')
-        plt.subplot(121)
+        plt.subplot(281)
         plt.imshow(predicted_img[1, :, :, 0],interpolation="nearest",cmap='Greys')
-        plt.subplot(122)
+        plt.subplot(282)
+        plt.imshow(predicted_img[1, :, :, 1],interpolation="nearest",cmap='Greys')
+        plt.subplot(283)
+        plt.imshow(predicted_img[1, :, :, 2],interpolation="nearest",cmap='Greys')
+        plt.subplot(284)
+        plt.imshow(predicted_img[1, :, :, 3],interpolation="nearest",cmap='Greys')    
+        plt.subplot(285)
+        plt.imshow(predicted_img[1, :, :, 4],interpolation="nearest",cmap='Greys')
+        plt.subplot(286)
+        plt.imshow(predicted_img[1, :, :, 5],interpolation="nearest",cmap='Greys')
+        plt.subplot(287)
+        plt.imshow(predicted_img[1, :, :, 6],interpolation="nearest",cmap='Greys')
+        plt.subplot(288)
+        plt.imshow(predicted_img[1, :, :, 7],interpolation="nearest",cmap='Greys')           
+        plt.subplot(289)
         plt.imshow(testOutput[test_idx[1], :, :, 0],interpolation="nearest",cmap='Greys')
         plt.show()
         plt.pause(0.0001) 
@@ -61,4 +75,3 @@ while True:
         logger.save(sess, sess.run(model.global_step))
 #%%
 predicted_img = model.predict(sess, testInput)
-

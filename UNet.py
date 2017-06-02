@@ -32,8 +32,9 @@ class UNet():
     def build(self):
         image_in = tf.placeholder(tf.float32, shape=[None, self.__IMG_X, self.__IMG_Y, self.__IMG_Z]) # input image size 256 X 256 X 4
         label_in = tf.placeholder(tf.float32, shape=[None, self.__IMG_X, self.__IMG_Y, self.__IMG_OUT_Z])
+        phase = tf.placeholder(tf.bool)
         
-        logits = self.u_net(image_in)
+        logits = self.u_net(image_in, phase)
         image_out = tf.nn.sigmoid(logits)
         
         loss = self.loss_func(image_out, label_in)  
@@ -43,31 +44,31 @@ class UNet():
         
         tf.summary.scalar('Loss', loss)
         
-        return {'image_in': image_in, 'label_in':label_in,'loss':loss,
-                'train_op':train_op, 'image_out': image_out}
+        return {'image_in': image_in, 'label_in':label_in, 'phase':phase,
+                'loss':loss, 'train_op':train_op, 'image_out': image_out}
 
-    def u_net(self, image_in):
+    def u_net(self, image_in, phase):
         layer_out = []
         filters_down = [64, 128, 256, 512, 1024]
         for layers in range(5):
             with tf.variable_scope('down_%d' %layers):
                 if layers == 0:
-                    tensor_out = self.down_block(image_in, filters_down[layers], False)
+                    tensor_out = self.down_block(image_in, filters_down[layers], phase, False)
                 else:
-                    tensor_out = self.down_block(layer_out[-1], filters_down[layers])
+                    tensor_out = self.down_block(layer_out[-1], filters_down[layers], phase)
                 layer_out.append(tensor_out)
                     
         filters_up = [512, 256, 128, 64]
         for layers in range(4):
             with tf.variable_scope('up_%d' %layers):
-                up_out = self.up_block(layer_out[3-layers], layer_out[-1], filters_up[layers])
+                up_out = self.up_block(layer_out[3-layers], layer_out[-1], filters_up[layers], phase)
                 layer_out.append(up_out)
                 
         filter = self.variables(name='final_conv', shape=[ 1, 1, filters_up[-1], self.__IMG_OUT_Z])
         image_out = tf.nn.conv2d(layer_out[-1], filter, strides=[1, 1, 1, 1], padding='SAME')    
         return image_out
 
-    def down_block(self, tensor_in, channel_out, down_pool = True):
+    def down_block(self, tensor_in, channel_out, phase, down_pool = True):
         channel_in = tensor_in.get_shape().as_list()[-1]
         if down_pool:
             tensor_in = tf.nn.max_pool(tensor_in, ksize = [1, 2, 2, 1], strides = [1, 2, 2, 1], padding = 'SAME')
@@ -77,15 +78,16 @@ class UNet():
             filter = self.variables(name='conv', shape=filter_shape)
             conv1_out = tf.nn.conv2d(tensor_in, filter, strides=[1, 1, 1, 1], padding='SAME')
             conv1_out = tf.nn.elu(conv1_out)
+            conv1_out = tf.layers.dropout(conv1_out, rate = params.DROPOUT_RATE, training = phase)
         with tf.variable_scope('conv2'):
             filter_shape = [3, 3, channel_out, channel_out]
             filter = self.variables(name='conv', shape=filter_shape)
             conv2_out = tf.nn.conv2d(conv1_out, filter, strides=[1, 1, 1, 1], padding='SAME')
             conv2_out = tf.nn.elu(conv2_out)
-
+            conv2_out = tf.layers.dropout(conv2_out, rate = params.DROPOUT_RATE, training = phase)
         return conv2_out
     
-    def up_block(self, shortcut_in, tensor_in, channel_out):
+    def up_block(self, shortcut_in, tensor_in, channel_out, phase):
         channel_in = tensor_in.get_shape().as_list()[-1]
         
         with tf.variable_scope('deconv1'):
@@ -103,13 +105,15 @@ class UNet():
             filter_shape = [3, 3, 2 * channel_out, channel_out]
             filter = self.variables(name='conv', shape=filter_shape)
             conv1_out = tf.nn.conv2d(concat_out, filter, strides=[1, 1, 1, 1], padding='SAME')
-            conv1_out = tf.nn.elu(conv1_out)            
+            conv1_out = tf.nn.elu(conv1_out)  
+            conv1_out = tf.layers.dropout(conv1_out, rate = params.DROPOUT_RATE, training = phase)
         
         with tf.variable_scope('conv2'):
             filter_shape = [3, 3, channel_out, channel_out]
             filter = self.variables(name='conv', shape=filter_shape)
             conv2_out = tf.nn.conv2d(conv1_out, filter, strides=[1, 1, 1, 1], padding='SAME')
             conv2_out = tf.nn.elu(conv2_out) 
+            conv2_out = tf.layers.dropout(conv2_out, rate = params.DROPOUT_RATE, training = phase)
         
         return conv2_out
             
@@ -126,19 +130,21 @@ class UNet():
     def train(self, sess, image_in, label_in):
         _, loss, summ = sess.run([self.model['train_op'], self.model['loss'], self.merged_summaries], feed_dict = {
             self.model['image_in']:image_in,
-            self.model['label_in']:label_in})
+            self.model['label_in']:label_in,
+            self.model['phase']: 1})
         return loss, summ
 
     def test(self, sess, image_in, label_in):
         loss, summ = sess.run([self.model['loss'], self.merged_summaries], feed_dict = {
             self.model['image_in']:image_in,
-            self.model['label_in']:label_in})
+            self.model['label_in']:label_in,
+            self.model['phase']: 0})
         return loss, summ
 
     def predict(self, sess, image_in):
         image_out = sess.run(self.model['image_out'], feed_dict = {
-            self.model['image_in']:image_in
-            })       
+            self.model['image_in']:image_in,
+            self.model['phase']: 0})       
         return image_out 
     
     
